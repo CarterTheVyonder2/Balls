@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bouncy Emojis</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: linear-gradient(180deg, #b4e1ff, #82c9ff);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    canvas {
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    .controls {
+      position: fixed;
+      top: 10px;
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 10px;
+      padding: 10px 20px;
+      display: flex;
+      gap: 10px;
+      font-family: Arial, sans-serif;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="controls">
+    <label for="emoji-count">Emoji Count:</label>
+    <input type="range" id="emoji-count" min="1" max="3000" value="100">
+    <span id="count-display">100</span>
+  </div>
+  <canvas id="emojiCanvas"></canvas>
+
+  <script>
+    const canvas = document.getElementById('emojiCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const emojiList = [
+      '😀', '🥹', '☺️', '😉', '😗', '😝', '🤓', '🙂‍↕️', '😔', '😣', '🤬', 
+      '😢', '😶‍🌫️', '😓', '🫢', '😶', '🫨', '😧', '🤤', '🤐', '😷', 
+      '😃', '😅', '😊', '😌', '😙', '😜', '😎', '😏', '😖', '😟', '😭', 
+      '🤯', '😱', '🤗', '🫡', '🫥', '😬', '😮', '😪', '🥴', '🤒', '😄', 
+      '😂', '😇', '😍', '😚', '🤪', '🥸', '😒', '😕', '😫', '😤', '😳', 
+      '😨', '🤔', '🤫', '😐', '🙄', '😲', '😮‍💨', '😁', '🤣', '🙂', '🥰', 
+      '😋', '🤨', '🤩', '🙂‍↔️', '🙁', '😩', '😠', '🥵', '😰', '🫣', '🫠', 
+      '🫤', '😯', '🥱', '😵', '🤮', '🤑', '😆', '🥲', '🙃', '😘', '😛', 
+      '🧐', '🥳', '😞', '☹️', '🥺', '😡', '🥶', '😥', '🤭', '🤥', '😑', 
+      '😦', '😴', '😵‍💫', '🤧', '🤠'
+    ];
+    const emojis = [];
+    const gravity = 0.5;
+    const bounceFactor = 0.7;
+
+    // Emoji object
+    class Emoji {
+      constructor(x, y, vx, vy, emoji) {
+        this.x = x;
+        this.y = y;
+        this.vx = vx;
+        this.vy = vy;
+        this.emoji = emoji;
+        this.size = 30 + Math.random() * 20;
+      }
+
+      update() {
+        this.vy += gravity;
+        this.x += this.vx;
+        this.y += this.vy;
+
+        // Bounce off walls
+        if (this.x + this.size > canvas.width || this.x < 0) {
+          this.vx = -this.vx * bounceFactor;
+          this.x = Math.max(0, Math.min(this.x, canvas.width - this.size));
+        }
+
+        // Bounce off floor/ceiling
+        if (this.y + this.size > canvas.height || this.y < 0) {
+          this.vy = -this.vy * bounceFactor;
+          this.y = Math.max(0, Math.min(this.y, canvas.height - this.size));
+        }
+      }
+
+      draw() {
+        ctx.font = `${this.size}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(this.emoji, this.x + this.size / 2, this.y + this.size / 2);
+      }
+    }
+
+    function spawnEmojis(count) {
+      emojis.length = 0;
+      for (let i = 0; i < count; i++) {
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height;
+        const vx = (Math.random() - 0.5) * 10;
+        const vy = (Math.random() - 0.5) * 10;
+        const emoji = emojiList[Math.floor(Math.random() * emojiList.length)];
+        emojis.push(new Emoji(x, y, vx, vy, emoji));
+      }
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      emojis.forEach(emoji => {
+        emoji.update();
+        emoji.draw();
+      });
+      requestAnimationFrame(animate);
+    }
+
+    // Resize canvas on window resize
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      spawnEmojis(emojis.length);
+    });
+
+    // Controls
+    const emojiCountInput = document.getElementById('emoji-count');
+    const countDisplay = document.getElementById('count-display');
+
+    emojiCountInput.addEventListener('input', () => {
+      const count = parseInt(emojiCountInput.value, 10);
+      countDisplay.textContent = count;
+      spawnEmojis(count);
+    });
+
+    // Initialize
+    spawnEmojis(parseInt(emojiCountInput.value, 10));
+    animate();
+  </script>
+</body>
+</html>
