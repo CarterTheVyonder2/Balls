@@ -33,13 +33,17 @@
       font-family: Arial, sans-serif;
       font-size: 16px;
     }
+
+    input[type="number"] {
+      width: 100px;
+    }
   </style>
 </head>
 <body>
   <div class="controls">
     <label for="emoji-count">Emoji Count:</label>
-    <input type="range" id="emoji-count" min="1" max="3000" value="100">
-    <span id="count-display">100</span>
+    <input type="number" id="emoji-count" min="1" max="3000" value="100">
+    <button id="update-button">Update</button>
   </div>
   <canvas id="emojiCanvas"></canvas>
 
@@ -132,11 +136,11 @@
 
     // Controls
     const emojiCountInput = document.getElementById('emoji-count');
-    const countDisplay = document.getElementById('count-display');
+    const updateButton = document.getElementById('update-button');
 
-    emojiCountInput.addEventListener('input', () => {
-      const count = parseInt(emojiCountInput.value, 10);
-      countDisplay.textContent = count;
+    updateButton.addEventListener('click', () => {
+      const count = Math.min(Math.max(parseInt(emojiCountInput.value, 10) || 1, 1), 3000);
+      emojiCountInput.value = count;
       spawnEmojis(count);
     });
 
