@@ -67,7 +67,7 @@
     ];
     const emojis = [];
     const gravity = 0.5;
-    const bounceFactor = 0.7;
+    const bounceFactor = 0.9;
 
     // Emoji object
     class Emoji {
@@ -91,10 +91,16 @@
           this.x = Math.max(0, Math.min(this.x, canvas.width - this.size));
         }
 
-        // Bounce off floor/ceiling
-        if (this.y + this.size > canvas.height || this.y < 0) {
-          this.vy = -this.vy * bounceFactor;
-          this.y = Math.max(0, Math.min(this.y, canvas.height - this.size));
+        // Bounce off floor
+        if (this.y + this.size > canvas.height) {
+          this.vy = -Math.abs(this.vy) * bounceFactor;
+          this.y = canvas.height - this.size;
+        }
+
+        // Bounce off ceiling
+        if (this.y < 0) {
+          this.vy = Math.abs(this.vy) * bounceFactor;
+          this.y = 0;
         }
       }
 
